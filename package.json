@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "env -u WATCH_REPORT_DEPENDENCIES next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit"
   },
   "dependencies": {
     "next": "16.2.6",
