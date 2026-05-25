@@ -1,6 +1,5 @@
 'use client'
 
-import { useTabStore } from '@/stores/tabs'
 import { useAuthStore } from '@/stores/auth'
 
 export function Header() {
