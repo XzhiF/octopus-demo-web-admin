@@ -7,7 +7,7 @@ export const useTabStore = create<TabState>((set, get) => ({
   tabs: [HOME_TAB],
   activeTabId: HOME_TAB.id,
   addTab: (tab: TabItem) => {
-    const { tabs, activeTabId } = get()
+    const { tabs } = get()
     const existing = tabs.find((t) => t.id === tab.id)
     if (existing) {
       set({ activeTabId: tab.id })
