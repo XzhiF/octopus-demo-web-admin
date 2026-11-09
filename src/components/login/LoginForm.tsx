@@ -21,7 +21,11 @@ export function LoginForm() {
     try {
       await login(username.trim(), password)
     } catch (err) {
-      setError(err instanceof ApiError && err.status === 401 ? INVALID_CREDENTIALS : '登录失败，请稍后重试')
+      setError(
+        err instanceof ApiError && err.status === 401
+          ? err.message || INVALID_CREDENTIALS
+          : '登录失败，请稍后重试',
+      )
     } finally {
       setIsLoading(false)
     }

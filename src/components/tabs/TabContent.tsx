@@ -1,16 +1,24 @@
 'use client'
 
 import { useTabStore } from '@/stores/tabs'
+import { MenuAdminPage } from '@/components/system/MenuAdminPage'
+import { RoleAdminPage } from '@/components/system/RoleAdminPage'
+import UsersPage from '@/app/system/users/page'
 
 export function TabContent() {
   const tabs = useTabStore((s) => s.tabs)
   const activeTabId = useTabStore((s) => s.activeTabId)
   const activeTab = tabs.find((tab) => tab.id === activeTabId)
   const isHome = !activeTabId || activeTabId === 'home'
+  const isMenuAdmin = activeTab?.path === '/system/menus'
+  const isRoleAdmin = activeTab?.path === '/system/roles'
+  const isUsersAdmin = activeTab?.path === '/system/users'
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
-      <div className="mx-auto max-w-4xl">
+      <div
+        className={`mx-auto ${isMenuAdmin || isRoleAdmin || isUsersAdmin ? 'max-w-6xl' : 'max-w-4xl'}`}
+      >
         {isHome ? (
           <>
             <h1 className="text-xl font-bold text-white">Welcome to Octopus Admin</h1>
@@ -27,6 +35,12 @@ export function TabContent() {
               <StatCard label="Storage Used" value="67.2 GB" trend="+2%" />
             </div>
           </>
+        ) : isMenuAdmin ? (
+          <MenuAdminPage />
+        ) : isRoleAdmin ? (
+          <RoleAdminPage />
+        ) : isUsersAdmin ? (
+          <UsersPage />
         ) : (
           <>
             <h1 className="text-xl font-bold text-white">{activeTab?.label ?? 'Unknown'}</h1>
