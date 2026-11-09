@@ -2,23 +2,23 @@
 
 import { useState } from 'react'
 import type { MenuItem } from '@/types'
-import { MENU_TREE } from '@/lib/menu-data'
+import { useAuthStore } from '@/stores/auth'
 import { useTabStore } from '@/stores/tabs'
 
-function MenuItemComponent({ item, depth = 0 }: { item: MenuItem; depth?: number }) {
-  const [expanded, setExpanded] = useState(false)
+function MenuNode({ item, depth = 0 }: { item: MenuItem; depth?: number }) {
+  const [expanded, setExpanded] = useState(depth === 0)
   const addTab = useTabStore((s) => s.addTab)
-  const hasChildren = item.children && item.children.length > 0
+  const hasChildren = item.children !== undefined && item.children.length > 0
 
   const handleClick = () => {
     if (hasChildren) {
       setExpanded((prev) => !prev)
     } else if (item.path) {
       addTab({
-        id: item.id,
-        label: item.label,
+        id: String(item.id),
+        label: item.name,
         path: item.path,
-        closable: item.id !== 'home',
+        closable: true,
       })
     }
   }
@@ -34,7 +34,7 @@ function MenuItemComponent({ item, depth = 0 }: { item: MenuItem; depth?: number
         }`}
       >
         {item.icon && <span className="shrink-0 text-base">{item.icon}</span>}
-        <span className="truncate">{item.label}</span>
+        <span className="truncate">{item.name}</span>
         {hasChildren && (
           <span
             className={`ml-auto shrink-0 text-xs transition-transform ${
@@ -49,7 +49,7 @@ function MenuItemComponent({ item, depth = 0 }: { item: MenuItem; depth?: number
       {hasChildren && expanded && (
         <ul className="mt-1 space-y-0.5 pl-4">
           {item.children!.map((child) => (
-            <MenuItemComponent key={child.id} item={child} depth={depth + 1} />
+            <MenuNode key={child.id} item={child} depth={depth + 1} />
           ))}
         </ul>
       )}
@@ -58,6 +58,8 @@ function MenuItemComponent({ item, depth = 0 }: { item: MenuItem; depth?: number
 }
 
 export function Sidebar() {
+  const menus = useAuthStore((s) => s.menus)
+
   return (
     <aside className="flex h-full w-56 shrink-0 flex-col border-r border-white/5 bg-slate-900/80">
       <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5">
@@ -68,13 +70,13 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {MENU_TREE.map((item) => (
-          <MenuItemComponent key={item.id} item={item} />
+        {menus.map((item) => (
+          <MenuNode key={item.id} item={item} />
         ))}
       </nav>
 
       <div className="border-t border-white/5 px-4 py-3">
-        <p className="text-xs text-slate-600">v0.1.0 prototype</p>
+        <p className="text-xs text-slate-600">v0.1.0</p>
       </div>
     </aside>
   )
