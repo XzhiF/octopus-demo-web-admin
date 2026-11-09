@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { DataTable, type DataTableColumn } from '@/components/ui/DataTable'
+import { DictSelect } from '@/components/ui/DictSelect'
 import { FormField, inputClass, selectClass } from '@/components/ui/FormField'
 import { Modal } from '@/components/ui/Modal'
 import {
@@ -27,6 +28,7 @@ type EditorState = {
   id?: number
   username: string
   nickname: string
+  gender: string
   password: string
   status: number
   builtIn: boolean
@@ -37,6 +39,7 @@ const EMPTY_EDITOR: EditorState = {
   mode: 'create',
   username: '',
   nickname: '',
+  gender: '',
   password: '',
   status: 1,
   builtIn: false,
@@ -122,6 +125,7 @@ export default function UsersPage() {
       id: user.id,
       username: user.username,
       nickname: user.nickname ?? '',
+      gender: user.gender ?? '',
       password: '',
       status: user.status ?? 1,
       builtIn: Boolean(user.builtIn),
@@ -145,6 +149,7 @@ export default function UsersPage() {
         await createUser({
           username: editor.username.trim(),
           nickname: editor.nickname.trim(),
+          gender: editor.gender,
           password: editor.password,
           status: editor.status,
         })
@@ -152,6 +157,7 @@ export default function UsersPage() {
         await updateUser(editor.id, {
           username: editor.username.trim(),
           nickname: editor.nickname.trim(),
+          gender: editor.gender,
           password: editor.password || undefined,
           status: editor.status,
         })
@@ -447,6 +453,15 @@ export default function UsersPage() {
               value={editor.nickname}
               onChange={(event) => setEditor((state) => ({ ...state, nickname: event.target.value }))}
               className={inputClass}
+            />
+          </FormField>
+          <FormField label="性别" htmlFor="user-gender">
+            <DictSelect
+              id="user-gender"
+              dictType="sys_user_sex"
+              value={editor.gender}
+              onChange={(gender) => setEditor((state) => ({ ...state, gender }))}
+              disabled={editor.builtIn}
             />
           </FormField>
           <FormField

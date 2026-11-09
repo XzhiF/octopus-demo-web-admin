@@ -7,6 +7,7 @@ export interface UserVO {
   id: number
   username: string
   nickname: string
+  gender?: string
   status: number
   builtIn?: boolean
   roles: RoleVO[]
@@ -15,6 +16,7 @@ export interface UserVO {
 export interface UserPayload {
   username: string
   nickname: string
+  gender?: string
   password?: string
   status?: number
 }

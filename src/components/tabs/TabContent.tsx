@@ -4,6 +4,8 @@ import { useTabStore } from '@/stores/tabs'
 import { MenuAdminPage } from '@/components/system/MenuAdminPage'
 import { RoleAdminPage } from '@/components/system/RoleAdminPage'
 import UsersPage from '@/app/system/users/page'
+import ConfigParamsPage from '@/app/config/params/page'
+import DictPage from '@/app/config/dicts/page'
 
 export function TabContent() {
   const tabs = useTabStore((s) => s.tabs)
@@ -13,11 +15,17 @@ export function TabContent() {
   const isMenuAdmin = activeTab?.path === '/system/menus'
   const isRoleAdmin = activeTab?.path === '/system/roles'
   const isUsersAdmin = activeTab?.path === '/system/users'
+  const isConfigParams = activeTab?.path === '/config/params'
+  const isConfigDicts = activeTab?.path === '/config/dicts'
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <div
-        className={`mx-auto ${isMenuAdmin || isRoleAdmin || isUsersAdmin ? 'max-w-6xl' : 'max-w-4xl'}`}
+        className={`mx-auto ${
+          isMenuAdmin || isRoleAdmin || isUsersAdmin || isConfigParams || isConfigDicts
+            ? 'max-w-6xl'
+            : 'max-w-4xl'
+        }`}
       >
         {isHome ? (
           <>
@@ -41,6 +49,10 @@ export function TabContent() {
           <RoleAdminPage />
         ) : isUsersAdmin ? (
           <UsersPage />
+        ) : isConfigParams ? (
+          <ConfigParamsPage />
+        ) : isConfigDicts ? (
+          <DictPage />
         ) : (
           <>
             <h1 className="text-xl font-bold text-white">{activeTab?.label ?? 'Unknown'}</h1>

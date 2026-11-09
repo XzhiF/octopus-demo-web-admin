@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '@/stores/auth'
 
-export function Header() {
+export function Header({ title = 'Octopus 管理平台' }: { title?: string }) {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const nickname = user?.nickname ?? user?.username ?? ''
@@ -11,7 +11,7 @@ export function Header() {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/5 bg-slate-900/60 px-6 backdrop-blur-sm">
       <div className="flex items-center gap-3">
-        <h2 className="text-sm font-semibold text-white">Octopus Admin Console</h2>
+        <h2 className="text-sm font-semibold text-white">{title}</h2>
       </div>
 
       <div className="flex items-center gap-4">
