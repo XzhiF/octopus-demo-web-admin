@@ -7,6 +7,8 @@ import UsersPage from '@/app/system/users/page'
 import ConfigParamsPage from '@/app/config/params/page'
 import DictPage from '@/app/config/dicts/page'
 import JobsPage from '@/app/monitor/jobs/page'
+import LoginLogsPage from '@/app/monitor/login-logs/page'
+import OperLogsPage from '@/app/monitor/oper-logs/page'
 
 export function TabContent() {
   const tabs = useTabStore((s) => s.tabs)
@@ -19,12 +21,21 @@ export function TabContent() {
   const isConfigParams = activeTab?.path === '/config/params'
   const isConfigDicts = activeTab?.path === '/config/dicts'
   const isMonitorJobs = activeTab?.path === '/monitor/jobs'
+  const isMonitorLoginLogs = activeTab?.path === '/monitor/login-logs'
+  const isMonitorOperLogs = activeTab?.path === '/monitor/oper-logs'
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <div
         className={`mx-auto ${
-          isMenuAdmin || isRoleAdmin || isUsersAdmin || isConfigParams || isConfigDicts || isMonitorJobs
+          isMenuAdmin ||
+          isRoleAdmin ||
+          isUsersAdmin ||
+          isConfigParams ||
+          isConfigDicts ||
+          isMonitorJobs ||
+          isMonitorLoginLogs ||
+          isMonitorOperLogs
             ? 'max-w-6xl'
             : 'max-w-4xl'
         }`}
@@ -57,6 +68,10 @@ export function TabContent() {
           <DictPage />
         ) : isMonitorJobs ? (
           <JobsPage />
+        ) : isMonitorLoginLogs ? (
+          <LoginLogsPage />
+        ) : isMonitorOperLogs ? (
+          <OperLogsPage />
         ) : (
           <>
             <h1 className="text-xl font-bold text-white">{activeTab?.label ?? 'Unknown'}</h1>
