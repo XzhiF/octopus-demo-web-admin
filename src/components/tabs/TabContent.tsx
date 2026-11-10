@@ -6,6 +6,7 @@ import { RoleAdminPage } from '@/components/system/RoleAdminPage'
 import UsersPage from '@/app/system/users/page'
 import ConfigParamsPage from '@/app/config/params/page'
 import DictPage from '@/app/config/dicts/page'
+import JobsPage from '@/app/monitor/jobs/page'
 
 export function TabContent() {
   const tabs = useTabStore((s) => s.tabs)
@@ -17,12 +18,13 @@ export function TabContent() {
   const isUsersAdmin = activeTab?.path === '/system/users'
   const isConfigParams = activeTab?.path === '/config/params'
   const isConfigDicts = activeTab?.path === '/config/dicts'
+  const isMonitorJobs = activeTab?.path === '/monitor/jobs'
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <div
         className={`mx-auto ${
-          isMenuAdmin || isRoleAdmin || isUsersAdmin || isConfigParams || isConfigDicts
+          isMenuAdmin || isRoleAdmin || isUsersAdmin || isConfigParams || isConfigDicts || isMonitorJobs
             ? 'max-w-6xl'
             : 'max-w-4xl'
         }`}
@@ -53,6 +55,8 @@ export function TabContent() {
           <ConfigParamsPage />
         ) : isConfigDicts ? (
           <DictPage />
+        ) : isMonitorJobs ? (
+          <JobsPage />
         ) : (
           <>
             <h1 className="text-xl font-bold text-white">{activeTab?.label ?? 'Unknown'}</h1>

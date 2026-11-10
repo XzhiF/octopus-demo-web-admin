@@ -27,6 +27,7 @@ export interface DataTableProps<T> {
   rowActions?: (row: T) => ReactNode
   rowActionsTitle?: string
   onRowClick?: (row: T) => void
+  rowClassName?: (row: T, index: number) => string | undefined
   sizeOptions?: number[]
 }
 
@@ -46,6 +47,7 @@ export function DataTable<T>({
   rowActions,
   rowActionsTitle = '操作',
   onRowClick,
+  rowClassName,
   sizeOptions = [10, 20, 50, 100],
 }: DataTableProps<T>) {
   const totalPages = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.size)) : 1
@@ -98,7 +100,7 @@ export function DataTable<T>({
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                     className={`border-b border-white/5 last:border-b-0 ${
                       onRowClick ? 'cursor-pointer hover:bg-white/5' : ''
-                    } ${loading ? 'opacity-60' : ''}`}
+                    } ${loading ? 'opacity-60' : ''} ${rowClassName?.(row, index) ?? ''}`}
                   >
                     {columns.map((column) => (
                       <td
