@@ -1,86 +1,89 @@
 'use client'
 
 import { useTabStore } from '@/stores/tabs'
-
-const PAGE_CONTENT: Record<string, { title: string; description: string }> = {
-  home: {
-    title: 'Welcome to Octopus Admin',
-    description: 'Your enterprise management command center. Navigate using the sidebar to explore modules.',
-  },
-  dashboard: {
-    title: 'Dashboard',
-    description: 'System overview and key performance indicators at a glance.',
-  },
-  users: {
-    title: 'User Management',
-    description: 'Create, edit, and manage user accounts and access profiles.',
-  },
-  roles: {
-    title: 'Role Management',
-    description: 'Define roles and configure role-based access control policies.',
-  },
-  permissions: {
-    title: 'Permission Management',
-    description: 'Granular permission configuration for all system resources.',
-  },
-  articles: {
-    title: 'Articles',
-    description: 'Publish, edit, and organize content articles.',
-  },
-  categories: {
-    title: 'Categories',
-    description: 'Manage content taxonomy and categorization structure.',
-  },
-  media: {
-    title: 'Media Library',
-    description: 'Upload, organize, and manage media assets.',
-  },
-  logs: {
-    title: 'System Logs',
-    description: 'Review audit trails, error logs, and system activity records.',
-  },
-  metrics: {
-    title: 'Performance Metrics',
-    description: 'Monitor system health, response times, and resource utilization.',
-  },
-  alerts: {
-    title: 'Alert Rules',
-    description: 'Configure threshold-based alert rules and notification channels.',
-  },
-  settings: {
-    title: 'Settings',
-    description: 'Application configuration, preferences, and system parameters.',
-  },
-}
+import { MenuAdminPage } from '@/components/system/MenuAdminPage'
+import { RoleAdminPage } from '@/components/system/RoleAdminPage'
+import UsersPage from '@/app/system/users/page'
+import ConfigParamsPage from '@/app/config/params/page'
+import DictPage from '@/app/config/dicts/page'
+import JobsPage from '@/app/monitor/jobs/page'
+import LoginLogsPage from '@/app/monitor/login-logs/page'
+import OperLogsPage from '@/app/monitor/oper-logs/page'
 
 export function TabContent() {
+  const tabs = useTabStore((s) => s.tabs)
   const activeTabId = useTabStore((s) => s.activeTabId)
-  const page = PAGE_CONTENT[activeTabId ?? 'home'] ?? { title: activeTabId ?? 'Unknown', description: '' }
+  const activeTab = tabs.find((tab) => tab.id === activeTabId)
+  const isHome = !activeTabId || activeTabId === 'home'
+  const isMenuAdmin = activeTab?.path === '/system/menus'
+  const isRoleAdmin = activeTab?.path === '/system/roles'
+  const isUsersAdmin = activeTab?.path === '/system/users'
+  const isConfigParams = activeTab?.path === '/config/params'
+  const isConfigDicts = activeTab?.path === '/config/dicts'
+  const isMonitorJobs = activeTab?.path === '/monitor/jobs'
+  const isMonitorLoginLogs = activeTab?.path === '/monitor/login-logs'
+  const isMonitorOperLogs = activeTab?.path === '/monitor/oper-logs'
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-xl font-bold text-white">{page.title}</h1>
-        <p className="mt-2 text-sm text-slate-400">{page.description}</p>
+      <div
+        className={`mx-auto ${
+          isMenuAdmin ||
+          isRoleAdmin ||
+          isUsersAdmin ||
+          isConfigParams ||
+          isConfigDicts ||
+          isMonitorJobs ||
+          isMonitorLoginLogs ||
+          isMonitorOperLogs
+            ? 'max-w-6xl'
+            : 'max-w-4xl'
+        }`}
+      >
+        {isHome ? (
+          <>
+            <h1 className="text-xl font-bold text-white">Welcome to Octopus Admin</h1>
+            <p className="mt-2 text-sm text-slate-400">
+              Your enterprise management command center. Navigate using the sidebar to explore modules.
+            </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {activeTabId === 'home' ? (
-            <>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="Active Users" value="1,284" trend="+12%" />
               <StatCard label="System Uptime" value="99.97%" trend="stable" />
               <StatCard label="Pending Tasks" value="23" trend="-5%" />
               <StatCard label="Deployments" value="142" trend="+8%" />
               <StatCard label="Incidents" value="0" trend="clear" />
               <StatCard label="Storage Used" value="67.2 GB" trend="+2%" />
-            </>
-          ) : (
-            <>
+            </div>
+          </>
+        ) : isMenuAdmin ? (
+          <MenuAdminPage />
+        ) : isRoleAdmin ? (
+          <RoleAdminPage />
+        ) : isUsersAdmin ? (
+          <UsersPage />
+        ) : isConfigParams ? (
+          <ConfigParamsPage />
+        ) : isConfigDicts ? (
+          <DictPage />
+        ) : isMonitorJobs ? (
+          <JobsPage />
+        ) : isMonitorLoginLogs ? (
+          <LoginLogsPage />
+        ) : isMonitorOperLogs ? (
+          <OperLogsPage />
+        ) : (
+          <>
+            <h1 className="text-xl font-bold text-white">{activeTab?.label ?? 'Unknown'}</h1>
+            <p className="mt-2 text-sm text-slate-400">{activeTab?.path}</p>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <PlaceholderBlock label="Data Table" />
               <PlaceholderBlock label="Actions Panel" />
               <PlaceholderBlock label="Filters" />
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

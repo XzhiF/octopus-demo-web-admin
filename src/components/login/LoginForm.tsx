@@ -2,27 +2,33 @@
 
 import { useState } from 'react'
 import { useAuthStore } from '@/stores/auth'
+import { ApiError } from '@/lib/api'
+
+const INVALID_CREDENTIALS = '用户名或密码错误'
 
 export function LoginForm() {
-  const [email, setEmail] = useState('admin@octopus.io')
-  const [password, setPassword] = useState('demo123')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const login = useAuthStore((s) => s.login)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isLoading) return
     setError(null)
     setIsLoading(true)
-
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 600))
-
-    const success = login(email, password)
-    if (!success) {
-      setError('Invalid credentials. Try admin@octopus.io / demo123')
+    try {
+      await login(username.trim(), password)
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.status === 401
+          ? err.message || INVALID_CREDENTIALS
+          : '登录失败，请稍后重试',
+      )
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -33,28 +39,29 @@ export function LoginForm() {
             🐙
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Octopus Admin</h1>
-          <p className="mt-1 text-sm text-slate-400">Enterprise management platform</p>
+          <p className="mt-1 text-sm text-slate-400">企业管理平台</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-300">
-              Email
+            <label htmlFor="username" className="mb-1.5 block text-sm font-medium text-slate-300">
+              用户名
             </label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-indigo-500/50 focus:bg-white/10"
-              placeholder="Enter your email"
-              autoComplete="email"
+              placeholder="请输入用户名"
+              autoComplete="username"
+              required
             />
           </div>
 
           <div>
             <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-300">
-              Password
+              密码
             </label>
             <input
               id="password"
@@ -62,13 +69,14 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-indigo-500/50 focus:bg-white/10"
-              placeholder="Enter your password"
+              placeholder="请输入密码"
               autoComplete="current-password"
+              required
             />
           </div>
 
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+            <div role="alert" className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
               {error}
             </div>
           )}
@@ -78,13 +86,9 @@ export function LoginForm() {
             disabled={isLoading}
             className="w-full rounded-lg bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-600 hover:shadow-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? '登录中...' : '登录'}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-xs text-slate-500">
-          Demo credentials: admin@octopus.io / demo123
-        </p>
       </div>
     </div>
   )

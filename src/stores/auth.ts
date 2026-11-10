@@ -1,23 +1,84 @@
 import { create } from 'zustand'
-import type { User, AuthState } from '@/types'
+import type { AuthPayload, AuthState, CurrentUser, MenuItem } from '@/types'
+import { clearToken, getToken, request, saveToken } from '@/lib/api'
 
-const MOCK_USERS: User[] = [
-  { id: '1', name: 'Alex Morgan', email: 'admin@octopus.io', role: 'Administrator', avatar: undefined },
-  { id: '2', name: 'Jane Smith', email: 'user@octopus.io', role: 'Operator', avatar: undefined },
-]
-
-export const useAuthStore = create<AuthState>((set) => ({
+const UNAUTHENTICATED = {
+  token: null,
+  tokenType: 'Bearer',
+  expiresInSeconds: 0,
   user: null,
+  permissions: [] as string[],
+  menus: [] as MenuItem[],
   isAuthenticated: false,
-  login: (email: string, password: string) => {
-    const matched = MOCK_USERS.find((u) => u.email === email)
-    if (matched && password === 'demo123') {
-      set({ user: matched, isAuthenticated: true })
-      return true
-    }
-    return false
+}
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  ...UNAUTHENTICATED,
+  isReady: false,
+
+  login: async (username: string, password: string) => {
+    const payload = await request<AuthPayload>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+      auth: false,
+      redirectOnUnauthorized: false,
+    })
+    saveToken(payload.token)
+    set({
+      token: payload.token,
+      tokenType: payload.tokenType,
+      expiresInSeconds: payload.expiresInSeconds,
+      user: payload.user,
+      permissions: payload.permissions,
+      isAuthenticated: true,
+      isReady: true,
+    })
+    await get().loadMenus()
+    return true
   },
-  logout: () => {
-    set({ user: null, isAuthenticated: false })
+
+  logout: async () => {
+    try {
+      await request<void>('/api/auth/logout', { method: 'POST' })
+    } catch {
+      // Stateless logout — clearing the local session is what matters.
+    }
+    clearToken()
+    set({ ...UNAUTHENTICATED, isReady: true })
+  },
+
+  restore: async () => {
+    if (get().isAuthenticated) {
+      set({ isReady: true })
+      return
+    }
+    const token = getToken()
+    if (!token) {
+      set({ isReady: true })
+      return
+    }
+    try {
+      const me = await request<CurrentUser>('/api/auth/me', { redirectOnUnauthorized: false })
+      set({
+        token,
+        user: me.user,
+        permissions: me.permissions,
+        isAuthenticated: true,
+        isReady: true,
+      })
+      await get().loadMenus()
+    } catch {
+      clearToken()
+      set({ ...UNAUTHENTICATED, isReady: true })
+    }
+  },
+
+  loadMenus: async () => {
+    try {
+      const menus = await request<MenuItem[]>('/api/auth/menus')
+      set({ menus })
+    } catch {
+      set({ menus: [] })
+    }
   },
 }))
