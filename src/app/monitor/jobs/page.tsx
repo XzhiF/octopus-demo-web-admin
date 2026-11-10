@@ -315,16 +315,47 @@ export default function JobsPage() {
     {
       key: 'status',
       title: '状态',
-      render: (row) =>
-        row.status === 1 ? (
-          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">
-            启用
-          </span>
-        ) : (
-          <span className="rounded-full bg-slate-500/20 px-2 py-0.5 text-xs text-slate-300">
-            停用
-          </span>
-        ),
+      render: (row) => {
+        const active = row.status === 1
+        if (!canEdit) {
+          return active ? (
+            <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">
+              启用
+            </span>
+          ) : (
+            <span className="rounded-full bg-slate-500/20 px-2 py-0.5 text-xs text-slate-300">
+              停用
+            </span>
+          )
+        }
+        return (
+          <button
+            type="button"
+            role="switch"
+            aria-checked={active}
+            aria-label={`${row.jobName} ${active ? '停用' : '启用'}`}
+            title={active ? '点击停用' : '点击启用'}
+            onClick={() => void toggleStatus(row)}
+            disabled={actingId === row.id}
+            className="inline-flex items-center gap-2 rounded-md py-0.5 pr-1 transition disabled:opacity-50"
+          >
+            <span
+              className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                active ? 'bg-emerald-500/80' : 'bg-slate-600'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${
+                  active ? 'left-[18px]' : 'left-0.5'
+                }`}
+              />
+            </span>
+            <span className={`text-xs ${active ? 'text-emerald-300' : 'text-slate-300'}`}>
+              {active ? '启用' : '停用'}
+            </span>
+          </button>
+        )
+      },
     },
     { key: 'lastRunAt', title: '最近执行', render: (row) => formatDateTime(row.lastRunAt) },
   ]
@@ -470,20 +501,6 @@ export default function JobsPage() {
                 className="rounded-md border border-indigo-500/30 px-2 py-1 text-xs text-indigo-300 transition hover:bg-indigo-500/10 disabled:opacity-40"
               >
                 立即执行
-              </button>
-            ) : null}
-            {canEdit ? (
-              <button
-                type="button"
-                onClick={() => void toggleStatus(row)}
-                disabled={actingId === row.id}
-                className={`rounded-md border px-2 py-1 text-xs transition disabled:opacity-40 ${
-                  row.status === 1
-                    ? 'border-amber-500/30 text-amber-300 hover:bg-amber-500/10'
-                    : 'border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10'
-                }`}
-              >
-                {row.status === 1 ? '暂停' : '恢复'}
               </button>
             ) : null}
             {canEdit ? (
